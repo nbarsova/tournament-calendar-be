@@ -1,8 +1,10 @@
 package de.barsova.pet.chess.entities;
 
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.pgclient.PgPool;
+import io.vertx.sqlclient.Tuple;
 
 public class Tournament {
     public Long id;
@@ -29,5 +31,10 @@ public class Tournament {
         return client.query("SELECT id, name FROM tournament ORDER BY name ASC").execute()
         .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
         .onItem().transform(Tournament::from);
+    }
+
+    public Uni<Long> save(PgPool client) {
+        return client.preparedQuery("INSERT INTO fruits (name) VALUES ($1) RETURNING id").execute(Tuple.of(name))
+        .onItem().transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 }
