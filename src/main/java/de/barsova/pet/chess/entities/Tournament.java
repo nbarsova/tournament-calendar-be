@@ -4,7 +4,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.pgclient.PgPool;
-import io.vertx.sqlclient.Tuple;
+import io.vertx.mutiny.sqlclient.Tuple;
 
 public class Tournament {
     public Long id;
@@ -34,7 +34,7 @@ public class Tournament {
     }
 
     public Uni<Long> save(PgPool client) {
-        return client.preparedQuery("INSERT INTO fruits (name) VALUES ($1) RETURNING id").execute(Tuple.of(name))
+        return client.preparedQuery("INSERT INTO tournament (name) VALUES ($1) RETURNING id").execute(Tuple.of(name))
         .onItem().transform(pgRowSet -> pgRowSet.iterator().next().getLong("id"));
     }
 }
