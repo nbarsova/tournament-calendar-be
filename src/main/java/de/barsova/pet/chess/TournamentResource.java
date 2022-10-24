@@ -3,53 +3,40 @@ package de.barsova.pet.chess;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+
+import java.util.List;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import io.quarkus.hibernate.reactive.panache.Panache;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.WebApplicationException;
+import static javax.ws.rs.core.Response.Status.CREATED;
 
+import io.quarkus.panache.common.Sort;
 import de.barsova.pet.chess.entities.Tournament;
-import io.quarkus.runtime.StartupEvent;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import java.net.URI;
 
 @Path("/tournaments")
 @ApplicationScoped
+@Produces("application/json")
+@Consumes("application/json")
 public class TournamentResource {
 
-    @Inject
-    io.vertx.mutiny.pgclient.PgPool client;
-
-    @Inject
-    @ConfigProperty(name = "tournaments.schema.create", defaultValue = "true")
-    boolean schemaCreate;
-
-    void config(@Observes StartupEvent ev) {
-        if (schemaCreate) {
-            initdb();
-        }
-    }
-
-    private void initdb() {
-        client.query("DROP TABLE IF EXISTS tournament").execute()
-        .flatMap(r -> client.query("CREATE TABLE tournament (id SERIAL PRIMARY KEY, name TEXT NOT NULL)").execute())
-        .flatMap(r -> client.query("INSERT INTO tournament (name) VALUES ('Test1')").execute())
-        .flatMap(r -> client.query("INSERT INTO tournament (name) VALUES ('Test2')").execute())
-        .flatMap(r -> client.query("INSERT INTO tournament (name) VALUES ('Test3')").execute())
-        .await().indefinitely();
-    }
     @GET
-    public Multi<Tournament> get() {
-        return Tournament.findAll(client);
+    public Uni<List<Tournament>> get() {
+        return Tournament.listAll(Sort.by("name"));
     }
 
-@POST
-public Uni<Response> create(Tournament tournament) {
-        return tournament.save(client)
-            .onItem().transform(id -> URI.create("/tournaments/" + id))
-            .onItem().transform(uri -> Response.created(uri).build());
+     @POST
+    public Uni<Response> create(Tournament tournament) {
+        if (tournament == null || tournament.id != null) {
+            throw new WebApplicationException("Id was invalidly set on request.", 422);
+        }
+
+         return Panache.withTransaction(tournament::persist)
+         .replaceWith(Response.ok(tournament).status(CREATED)::build);
     }
 }
