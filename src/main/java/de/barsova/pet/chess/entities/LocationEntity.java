@@ -1,25 +1,26 @@
 package de.barsova.pet.chess.entities;
 
-import java.util.Date;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import de.barsova.pet.chess.enums.County;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+
 @Entity
 @Cacheable
-public class Tournament extends PanacheEntity {
+public class LocationEntity extends PanacheEntity {
 
-    @Column(length = 40, unique = true)
+    @Column(length = 100)
     public String name;
 
-    @Column(length = 200)
-    public String description;
+    @Column
+    public float lat;
 
     @Column
-    public Date date;
+    public float lng;
 
-    @Column(length = 40)
-    public String location;
+    @Column
+    public County county;
 
 }
