@@ -1,17 +1,15 @@
 package de.barsova.pet.chess.entities;
 
 import java.util.Date;
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.FetchType;
+import javax.persistence.*;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+
 
 @Entity
 @Cacheable
 public class TournamentEntity extends PanacheEntity {
+
 
     @Column(length = 40, unique = true)
     public String name;
@@ -22,6 +20,7 @@ public class TournamentEntity extends PanacheEntity {
     @Column
     public Date date;
 
-    @ManyToOne (fetch = FetchType.LAZY)
+    @ManyToOne
+    @JoinColumn(name = "locationId")
     public LocationEntity location;
 }

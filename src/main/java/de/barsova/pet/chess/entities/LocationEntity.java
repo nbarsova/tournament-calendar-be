@@ -4,7 +4,7 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import de.barsova.pet.chess.enums.County;
-
+import javax.persistence.Id;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 
 @Entity

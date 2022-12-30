@@ -33,7 +33,7 @@ public class TournamentEndpoint {
         if (tournament == null || tournament.id != null) {
             throw new WebApplicationException("Id was invalidly set on request.", 422);
         }
-         System.out.println(tournament);
+         System.out.println("why are we here?"+tournament.name+" "+tournament.date+tournament.location);
 
          return Panache.withTransaction(tournament::persist)
          .replaceWith(Response.ok(tournament).status(CREATED)::build);
